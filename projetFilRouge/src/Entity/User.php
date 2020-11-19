@@ -4,32 +4,71 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
+use Doctrine\ORM\Mapping\InheritanceType;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use Doctrine\ORM\Mapping\DiscriminatorMap;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+
 
 /**
- * @ApiResource
+ * @ApiResource(
+ *  collectionOperations={
+ *        "get_users"={ 
+ *               "method"="GET", 
+ *               "path"="/admin/users",
+ *          },
+ *          "addUser"={ 
+ *               "method"="POST", 
+ *               "path"="/admin/users",
+ *               "security_message"="Acces non autorisé",
+ *          },
+ * },
+ *  itemOperations={
+ *          "get_users_id"={ 
+ *               "method"="GET", 
+ *               "path"="/admin/users/{id}",
+ * "defaults"={"id"=null},
+ *          },
+ *      "put_users"={ 
+ *               "method"="PUT", 
+ *               "path"="/admin/users",
+ *          },
+ * },
+ * normalizationContext = {"groups" = {"user: read"}},
+ * denormalizationContext = {"groups" = {"user: write"}},
+ * attributes = {"pagination_enabled" = true, "pagination_items_per_page" = 2,
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "security_message"="Acces non autorisé"
+ * })
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @ApiFilter(BooleanFilter::class, properties={"archivage"})
+ * @ORM\InheritanceType("JOINED")
+ * @ORM\DiscriminatorColumn(name="type", type="string")
+ * @ORM\DiscriminatorMap({"admin"="User","apprenant" = "Apprenant","formateur"="Formateur","cm"="CommunityManager"})
+ * 
  */
 class User implements UserInterface
 {
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
+     * @Groups ({"user: read"})
      * @ORM\Column(type="integer")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Groups ({"user: read","user: write"})
      */
     private $username;
 
-    /**
-     * @ORM\Column(type="json")
-     */
     private $roles = [];
 
     /**
@@ -39,21 +78,37 @@ class User implements UserInterface
     private $password;
 
     /**
-     * @Groups("user:write")
-     * @SerializedName("password")
+     * @Groups ({"user: write"})
      */
-    private $plainPassword;
-
+    private $plainPassword;  
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups ({"user: read","user: write"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups ({"user: read","user: write"})
      */
     private $LastName;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Groups ({"user: read","user: write"})
+     */
+    private $email;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="users")
+     */
+    private $profil;
+
+    /**
+     * @ORM\Column(type="blob", nullable=true)
+     */
+    private $photo;
 
     public function getId(): ?int
     {
@@ -84,7 +139,7 @@ class User implements UserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        $roles[] = 'ROLE_'.$this->profil->getLibelle();
 
         return array_unique($roles);
     }
@@ -148,6 +203,76 @@ class User implements UserInterface
     public function setLastName(string $LastName): self
     {
         $this->LastName = $LastName;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getProfil(): ?Profil
+    {
+        return $this->profil;
+    }
+
+    public function setProfil(?Profil $profil): self
+    {
+        $this->profil = $profil;
+
+        return $this;
+    }
+
+    public function getPhoto()
+    {
+        //return $this->photo;
+        
+        if($this->photo){
+            $data=stream_get_contents($this->photo);
+            if(!$this->photo){
+                @fclose($this->photo);
+
+            }
+            return base64_encode($photo);
+        }else{
+            return null;
+        }
+
+        /*$photo = @stream_get_contents($this->photo);
+        @fclose($this->photo);
+        return base64_encode($photo);*/
+    }
+
+    public function setPhoto($photo): self
+    {
+        $this->photo = $photo;
+
+        return $this;
+    }
+ /**
+     * Get the value of plainPassword
+     */ 
+    public function getPlainPassword()
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * Set the value of plainPassword
+     *
+     * @return  self
+     */ 
+    public function setPlainPassword($plainPassword)
+    {
+        $this->plainPassword = $plainPassword;
 
         return $this;
     }
