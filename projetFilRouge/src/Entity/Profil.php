@@ -17,7 +17,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
  * @ApiResource(
  *  
  *      collectionOperations={
- *        "get_profils_all"={ 
+ *        "profils_all"={ 
  *               "method"="GET", 
  *               "path"="/admin/profils",
  *                "security_message"="Acces non autorisé"
@@ -43,7 +43,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
  *               "path"="/admin/profils/{id}",
  *          },
  *          "archive_profil"={ 
- *               "method"="PUT", 
+ *               "method"="DELETE", 
  *               "path"="/admin/profils/{id}",
  *             }
  * },

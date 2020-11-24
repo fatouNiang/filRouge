@@ -11,7 +11,17 @@ use ApiPlatform\Core\Annotation\ApiResource;
  * @ApiResource
  * @ORM\Entity(repositoryClass=AdminRepository::class)
  */
-class Admin 
+class Admin extends User
 {
-  
+  /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(type="integer")
+     */
+    protected $id;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 }

@@ -19,31 +19,37 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *               "method"="POST", 
  *               "path"="/apprenants",
  *          },
- *      },
- *      itemOperations={
+ * },
+ * itemOperations={
  *           "get_apprenants_id"={ 
  *               "method"="GET", 
  *               "path"="/apprenants/{id}",
- *         },
- *      },
- * attributes = {"security"="is_granted('ROLE_Formateur') or is_granted('ROLE_Community Manager')" ,
+ *                "defaults"={"id"=null},
+ *          },
+ *},
+ *  normalizationContext = {"groups" = {"apprenant: read"}},
+ * denormalizationContext = {"groups" = {"apprenant: write"}},
+ * attributes = {"security"="is_granted('ROLE_Administrateur')",
  *              "security_message"="Acces non autorisé"})
  * 
  * )
  * @ORM\Entity(repositoryClass=ApprenantRepository::class)
  */
-
 class Apprenant extends User
 {
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups ({"apprenant: read"})
+
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups ({"apprenant: read","apprenant: write"})
+
      */
     private $genre;
 

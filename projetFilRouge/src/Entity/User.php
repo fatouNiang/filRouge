@@ -10,49 +10,50 @@ use Doctrine\ORM\Mapping\DiscriminatorMap;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping\DiscriminatorColumn;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Annotation\SerializedName;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 
-
 /**
+ * @ORM\Entity(repositoryClass=UserRepository::class)
+ *
+ * @ORM\InheritanceType("JOINED")
+ * @ORM\DiscriminatorColumn(name="type", type="string")
+ * @ORM\DiscriminatorMap({"user"="User","admin"="Admin","apprenant" = "Apprenant","formateur"="Formateur","cm"="CommunityManager"})
+ * @ApiFilter(BooleanFilter::class, properties={"archivage"})
+
  * @ApiResource(
- *  collectionOperations={
+ *    collectionOperations={
  *        "get_users"={ 
- *               "method"="GET", 
- *               "path"="/admin/users",
+ *            "method"="GET", 
+ *            "path"="/admin/users",
  *          },
- *          "addUser"={ 
+ *            "add_users"={ 
  *               "method"="POST", 
  *               "path"="/admin/users",
- *               "security_message"="Acces non autorisé",
  *          },
  * },
- *  itemOperations={
+ *      itemOperations={
  *          "get_users_id"={ 
  *               "method"="GET", 
  *               "path"="/admin/users/{id}",
- * "defaults"={"id"=null},
  *          },
  *      "put_users"={ 
  *               "method"="PUT", 
- *               "path"="/admin/users",
+ *               "path"="/admin/users/{id}",
+ *          },
+ *      "archive_users"={ 
+ *               "method"="DELETE", 
+ *               "path"="/admin/users/{id}",
  *          },
  * },
  * normalizationContext = {"groups" = {"user: read"}},
  * denormalizationContext = {"groups" = {"user: write"}},
- * attributes = {"pagination_enabled" = true, "pagination_items_per_page" = 2,
- *              "security"="is_granted('ROLE_ADMIN')",
- *              "security_message"="Acces non autorisé"
- * })
- * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ApiFilter(BooleanFilter::class, properties={"archivage"})
- * @ORM\InheritanceType("JOINED")
- * @ORM\DiscriminatorColumn(name="type", type="string")
- * @ORM\DiscriminatorMap({"admin"="User","apprenant" = "Apprenant","formateur"="Formateur","cm"="CommunityManager"})
+ * attributes = {"security"="is_granted('ROLE_Formateur')",
+ *              "security_message"="Acces non autorisé"})
  * 
+ * )
  */
+
 class User implements UserInterface
 {
     /**
@@ -63,7 +64,7 @@ class User implements UserInterface
      */
     protected $id;
 
-    /**
+     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Groups ({"user: read","user: write"})
      */
@@ -74,6 +75,7 @@ class User implements UserInterface
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Groups ({"user: write","formateur:write"})
      */
     private $password;
 
@@ -102,13 +104,21 @@ class User implements UserInterface
 
     /**
      * @ORM\ManyToOne(targetEntity=Profil::class, inversedBy="users")
+     * @Groups ({"profil: read","profil: write"})
      */
     private $profil;
 
-    /**
+ /**
      * @ORM\Column(type="blob", nullable=true)
+     * @Groups({"user: read","user: write"})
      */
     private $photo;
+
+    /**
+     * @ORM\Column(type="boolean")
+     * @Groups ({"user: read","user: write"})
+     */
+    private $archivage;
 
     public function getId(): ?int
     {
@@ -131,7 +141,6 @@ class User implements UserInterface
 
         return $this;
     }
-
     /**
      * @see UserInterface
      */
@@ -182,7 +191,6 @@ class User implements UserInterface
         // If you store any temporary, sensitive data on the user, clear it here
         $this->plainPassword = null;
     }
-
     public function getFirstName(): ?string
     {
         return $this->firstName;
@@ -230,7 +238,6 @@ class User implements UserInterface
 
         return $this;
     }
-
     public function getPhoto()
     {
         //return $this->photo;
@@ -257,7 +264,7 @@ class User implements UserInterface
 
         return $this;
     }
- /**
+    /**
      * Get the value of plainPassword
      */ 
     public function getPlainPassword()
@@ -276,4 +283,17 @@ class User implements UserInterface
 
         return $this;
     }
+
+    public function getArchivage(): ?bool
+    {
+        return $this->archivage;
+    }
+    
+    public function setArchivage(bool $archivage): self
+    {
+        $this->archivage = $archivage;
+
+        return $this;
+    }
 }
+

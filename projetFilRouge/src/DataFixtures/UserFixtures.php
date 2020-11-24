@@ -1,77 +1,89 @@
 <?php
-
 namespace App\DataFixtures;
 
 use Faker\Factory;
 use App\Entity\User;
 use App\Entity\Admin;
+use App\Entity\Profil;
 use App\Entity\Apprenant;
 use App\Entity\Formateur;
 use App\Entity\CommunityManager;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class UserFixtures extends Fixture
+class UserFixtures extends Fixture implements DependentFixtureInterface
 {
-    //public const USER_REFERENCE = 'user';
 
-    private $encoder;
-
-    public function __construct(UserPasswordEncoderInterface $encoder){
-
-        $this->encoder=$encoder;
-    }
-
-
-    public function load(ObjectManager $manager)
+    private $encode;
+    protected $profilRepositiry;
+    public function __construct(UserPasswordEncoderInterface $encode)
     {
-
-        $faker= Factory::create("fr_FR");
-
-        for ($i=0; $i < 4; $i++) { 
-          
-            if ($i==0) {
-                $user= new Admin();
-            }
-            $nbrUSer=3;
-            if($i==1){
-                $nbrUSer=20;
-            }
-            if($i==1){
-                $user= new Apprenant();  
-                for ($a=0; $a < $nbrUSer; $a++) { 
-                   
-                    $user->setGenre("homme")
-                        ->setAdresse('parcelle')
-                        ->setStatut("visible");
-                }
-                            
-            }
-            if($i==2){
-                $user= new CommunityManager();
-                //echo 'CommunityManager';
-            }
-            if($i==3){
-                $user= new Formateur();
-            }
-           // $photo = fopen($faker->imageUrl($width = 640, $height = 480),"rb");
-
-            $user->setUsername("user".$i)
-                ->setFirstName($faker->firstName)
-                ->setLastName($faker->lastName)
-                ->setEmail($faker->email)
-                //->setPhoto($photo)
-                ->setPhoto("sdfghj")
-                ->setPassword($this->encoder->encodePassword($user, 'pass_1234'));
-            $user->setProfil($this->getReference(ProfilFixtures::PROFIL_REFERENCE.$i));
-
-        
-        $manager->persist($user);
-
-        }
-
-        $manager->flush();
-        //$this->addReference(self::USER_REFERENCE, $profil);
+        $this->encode=$encode;
     }
+
+    
+    public function load(ObjectManager $manager)
+
+    {
+        $fake = Factory::create('fr-FR');
+            for($i=0;$i<=3;$i++){
+
+                $nbrUser=5;
+                $userProfil=$this->getReference(ProfilFixtures::getReferenceKey($i %4));
+
+
+                if($userProfil->getLibelle() ==="Apprenant"){
+                    $nbrUser=10;
+                }
+
+                for ($b=1;$b<=$nbrUser;$b++){
+
+                    $user=new User();
+
+                    if($userProfil->getLibelle()==="Apprenant"){
+
+                        $user=new Apprenant();
+                        $user->setGenre($fake->randomElement(['homme','femme']))
+                            //->setTelephone($fake->phoneNumber())
+                            ->setStatut("actif")
+                            ->setAdresse($fake->address());
+                    }
+                    if($userProfil->getLibelle()==="Formateur"){
+                        $user=new Formateur();
+                    }
+                    if($userProfil->getLibelle()==="Community Manager"){
+                        $user=new CommunityManager();
+                    }
+
+                if($userProfil->getLibelle()==="Administrateur"){
+
+                    $user=new Admin();
+
+                }
+                    $user->setProfil($userProfil)
+                        ->setUsername( strtolower ($fake->userName))
+                        ->setFirstName($fake->firstName)
+                        ->setLastName($fake->lastName)
+                        ->setEmail($fake->email)
+                        ->setArchivage(false);
+                    //$photo = fopen($fake->imageUrl($width = 640, $height = 480),"rb");
+                    $user->setPhoto("vous");
+                    $password = $this->encode->encodePassword ($user, 'pass_1234' );
+                    $user->setPassword($password);
+                    
+                    $manager->persist($user);
+                }
+            }
+            $manager->flush();
+
+    }
+    public function getDependencies()
+    {
+        return array(
+            ProfilFixtures::class,
+        );
+    }
+
 }
