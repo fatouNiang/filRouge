@@ -12,46 +12,46 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ApiResource(
- *  
+ *      routePrefix="/admin",
  *      collectionOperations={
  *        "profils_all"={ 
  *               "method"="GET", 
- *               "path"="/admin/profils",
- *                "security_message"="Acces non autorisé"
+ *               "path"="/profils",
  *          },
  *         "get_admin_profils"={ 
  *               "method"="GET", 
- *               "path"="admin/profils/{id}/users",
+ *               "path"="/profils/{id}/users",
  *          },
  *  *         "post_admin_profils"={ 
  *               "method"="POST", 
- *               "path"="admin/profils",
- *  *            "security_message"="Acces non autorisé"
-
+ *               "path"="/profils",
  *          },
  *      },
  *      itemOperations={
  *          "get_admin_profils"={ 
  *               "method"="GET", 
- *               "path"="/admin/profils/{id}",
+ *               "path"="/profils/{id}",
  *          },
  *           "put_admin_profils"={ 
  *               "method"="PUT", 
- *               "path"="/admin/profils/{id}",
+ *               "path"="/profils/{id}",
  *          },
  *          "archive_profil"={ 
  *               "method"="DELETE", 
- *               "path"="/admin/profils/{id}",
+ *               "path"="/profils/{id}",
  *             }
  * },
  * normalizationContext = {"groups" = {"profil: read"}},
  * denormalizationContext = {"groups" = {"profil: write"}},
- * attributes = {"pagination_enabled" = true, "pagination_items_per_page" = 2}
+ * attributes = {"security"="is_granted('ROLE_ADMIN)",
+ *              "security_message"="Acces non autorisé"}
  * )
  * @ApiFilter(BooleanFilter::class, properties={"archivage"})
+ * @UniqueEntity("libelle", message="ce libelle existe deja")
  * @ORM\Entity(repositoryClass=ProfilRepository::class)
  */
 class Profil
@@ -68,6 +68,7 @@ class Profil
      * @Assert\NotBlank
      * @ORM\Column(type="string", length=255)
      * @Groups ({"profil: write", "profil: read"})
+     * 
      */
     private $libelle;
 
@@ -75,7 +76,7 @@ class Profil
      * @ORM\Column(type="boolean")
      * @Groups ({"profil: write", "profil: read"})
      */
-    private $archivage;
+    private $archivage=0;
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="profil")

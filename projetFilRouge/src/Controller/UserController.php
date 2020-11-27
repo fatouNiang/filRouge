@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Services\UserService;
 use App\Controller\UserController;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,18 +21,21 @@ class UserController extends AbstractController
     private $serializer;
     private $validator;
     private $em;
+    private$uploadImage;
 
 
     public function __construct(
         UserPasswordEncoderInterface $encoder,
         SerializerInterface $serializer,
         ValidatorInterface $validator,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        UserService $userService
     ){
         $this->encoder=$encoder;
         $this->serializer=$serializer;
         $this->validator=$validator;
         $this->em=$em;
+        $this->userService=$userService;
     }
 
  /**
@@ -49,14 +53,10 @@ class UserController extends AbstractController
     public function add(Request $request)
     {
         $user = $request->request->all();
-        $photo = $request->files->get("photo");
+        $photo= $this->userService->uploadImage($request);
         $user = $this->serializer->denormalize($user,"App\Entity\User",true);
-        if(!$photo)
-        {
-            return new JsonResponse("veuillez mettre une images",Response::HTTP_BAD_REQUEST,[],true);
-        }
-            $photoBlob = fopen($photo->getRealPath(),"rb");
-             $user->setPhoto($photoBlob);
+            
+        $user->setPhoto($photo);
         $errors = $this->validator->validate($user);
         if (count($errors)){
             $errors = $this->serializer->serialize($errors,"json");
@@ -85,31 +85,33 @@ class UserController extends AbstractController
      *     }
      * )
      */
-    public function put(Request $request)
+    public function put(UserRepository $repoUser)
     {
-        $user = $request->request->all();
-        $photo = $request->files->get("photo");
-        $user = $this->serializer->denormalize($user,"App\Entity\User",true);
-        // if(!$photo)
-        // {
-        //     return new JsonResponse("veuillez mettre une images",Response::HTTP_BAD_REQUEST,[],true);
-        // }
-            $photoBlob = fopen($photo->getRealPath(),"rb");
-             $user->setPhoto($photoBlob);
-        $errors = $this->validator->validate($user);
-        if (count($errors)){
-            $errors = $this->serializer->serialize($errors,"json");
-            return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
-        }
-        $password = $user->getPassword();
-       $user->setPassword($this->encoder->encodePassword($user,$password));
-       $user->setArchivage(false);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($user);
-        $em->flush();
+        $update = $em->getRepository();
         
-        return $this->json("success",201);
+    //     $user = $request->request->all();
+    //     $photo = $request->files->get("photo");
+    //     $user = $this->serializer->denormalize($user,"App\Entity\User",true);
+    //      if(!$photo)
+    //      {
+    //          return new JsonResponse("veuillez mettre une images",Response::HTTP_BAD_REQUEST,[],true);
+    //      }
+    //         $photoBlob = fopen($photo->getRealPath(),"r+");
+    //          $user->setPhoto($photoBlob);
+    //     $errors = $this->validator->validate($user);
+    //     if (count($errors)){
+    //         $errors = $this->serializer->serialize($errors,"json");
+    //         return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
+    //     }
+    //     $password = $user->getPassword();
+    //    $user->setPassword($this->encoder->encodePassword($user,$password));
+    //    $user->setArchivage(false);
+
+    //     $em = $this->getDoctrine()->getManager();
+    //     $em->persist($user);
+    //     $em->flush();
+        
+    //     return $this->json("success",201);
      }
      
     }

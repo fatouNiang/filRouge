@@ -43,7 +43,6 @@ class ProfilSortiesDataPersister implements ContextAwareDataPersisterInterface
     public function remove($data, array $context = [])
     {
         $data->setArchivage(1);
-       // $this->_entityManager->remove($data);
         $this->_entityManager->flush();
     }
 }

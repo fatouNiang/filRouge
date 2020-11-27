@@ -14,7 +14,7 @@ class ProfilFixtures extends Fixture
 
     public function load(ObjectManager $manager)
     {
-        $libelles=['administrateur',"Formateur","Community Manager","Apprenant"];
+        $libelles=['ADMIN',"Formateur","CommunityManager","Apprenant"];
 
             for ($i=0;$i<=3;$i++){
                 $profil=new Profil();
@@ -24,12 +24,7 @@ class ProfilFixtures extends Fixture
                 $this->addReference(self::getReferenceKey($i),$profil);
 
             }
-
             $manager->flush();
-
-
-
-
 
     }
 

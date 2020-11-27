@@ -15,7 +15,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserFixtures extends Fixture implements DependentFixtureInterface
 {
-
+ 
     private $encode;
     protected $profilRepositiry;
     public function __construct(UserPasswordEncoderInterface $encode)
@@ -53,11 +53,11 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
                     if($userProfil->getLibelle()==="Formateur"){
                         $user=new Formateur();
                     }
-                    if($userProfil->getLibelle()==="Community Manager"){
+                    if($userProfil->getLibelle()==="CommunityManager"){
                         $user=new CommunityManager();
                     }
 
-                if($userProfil->getLibelle()==="Administrateur"){
+                if($userProfil->getLibelle()==="ADMIN"){
 
                     $user=new Admin();
 
@@ -69,7 +69,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
                         ->setEmail($fake->email)
                         ->setArchivage(false);
                     //$photo = fopen($fake->imageUrl($width = 640, $height = 480),"rb");
-                    $user->setPhoto("vous");
+                    $user->setPhoto("photo");
                     $password = $this->encode->encodePassword ($user, 'pass_1234' );
                     $user->setPassword($password);
                     

@@ -10,13 +10,20 @@ class ProfilSortieFixtures extends Fixture
 {
     public function load(ObjectManager $manager)
     {
-        $TabprofilSorti=["front-end", "back_end", "cms", "java", "php"];
+        // public static function getReferenceKey($i){
+        //     return sprintf('profilSortie_user_%s',$i);
+        // }
+        //public const REFERENCE
+
+        $TabprofilSorti=["front-end", "back_end", "CMS", "java", "php"];
 
         for ($i=0; $i <5 ; $i++) { 
            $pSorti= new ProfilSortie();
            $pSorti->setLibelle($TabprofilSorti[$i])
                 ->setArchivage(false);
           $manager->persist($pSorti);
+          //$this->addReference(self::getReferenceKey($i),$psorti);
+
         }
         // $product = new Product();
         

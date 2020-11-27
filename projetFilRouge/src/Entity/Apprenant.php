@@ -61,6 +61,11 @@ class Apprenant extends User
      */
     private $statut;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=ProfilSortie::class, inversedBy="apprenants")
+     */
+    private $profilSortie;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -98,6 +103,18 @@ class Apprenant extends User
     public function setStatut(string $statut): self
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function getProfilSortie(): ?ProfilSortie
+    {
+        return $this->profilSortie;
+    }
+
+    public function setProfilSortie(?ProfilSortie $profilSortie): self
+    {
+        $this->profilSortie = $profilSortie;
 
         return $this;
     }

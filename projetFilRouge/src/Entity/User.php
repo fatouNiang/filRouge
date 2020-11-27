@@ -20,38 +20,36 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
  * @ORM\DiscriminatorColumn(name="type", type="string")
  * @ORM\DiscriminatorMap({"user"="User","admin"="Admin","apprenant" = "Apprenant","formateur"="Formateur","cm"="CommunityManager"})
  * @ApiFilter(BooleanFilter::class, properties={"archivage"})
-
  * @ApiResource(
+ *      routePrefix="/admin",
  *    collectionOperations={
  *        "get_users"={ 
  *            "method"="GET", 
- *            "path"="/admin/users",
+ *            "path"="/users",
  *          },
  *            "add_users"={ 
  *               "method"="POST", 
- *               "path"="/admin/users",
+ *               "path"="/users",
  *          },
  * },
  *      itemOperations={
  *          "get_users_id"={ 
  *               "method"="GET", 
- *               "path"="/admin/users/{id}",
+ *               "path"="/users/{id}",
  *          },
  *      "put_users"={ 
  *               "method"="PUT", 
- *               "path"="/admin/users/{id}",
+ *               "path"="/users/{id}",
  *          },
  *      "archive_users"={ 
  *               "method"="DELETE", 
- *               "path"="/admin/users/{id}",
+ *               "path"="/users/{id}",
  *          },
  * },
  * normalizationContext = {"groups" = {"user: read"}},
  * denormalizationContext = {"groups" = {"user: write"}},
- * attributes = {"security"="is_granted('ROLE_Formateur')",
- *              "security_message"="Acces non autorisé"})
- * 
  * )
+ * 
  */
 
 class User implements UserInterface
@@ -243,7 +241,7 @@ class User implements UserInterface
         //return $this->photo;
         
         if($this->photo){
-            $data=stream_get_contents($this->photo);
+            $photo=stream_get_contents($this->photo);
             if(!$this->photo){
                 @fclose($this->photo);
 
