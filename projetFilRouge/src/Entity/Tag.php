@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\TagRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -22,7 +24,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *          "post_tag"={
  *              "method"="POST",
  *              "path"="/tags",
- *   *          "security" = "is_granted('POST', object)"
+ *              "security" = "is_granted('POST', object)"
       
  *      },
  * },
@@ -37,6 +39,12 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *              "method"="PUT",
  *              "path"="/tags/{id}",
  *              "security" = "is_granted('GET', object)"
+
+ *          },
+ *          "delete_Id_tag"={
+ *              "method"="DELETE",
+ *              "path"="/tags/{id}",
+ *              "security" = "is_granted('DELETE', object)"
 
  *          },
  *      },
@@ -60,6 +68,21 @@ class Tag
      */
     private $libelle;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=GroupeTag::class, inversedBy="tags")
+     */
+    private $groupeTag;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $archivage=0;
+
+    public function __construct()
+    {
+        $this->groupeTag = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -73,6 +96,42 @@ class Tag
     public function setLibelle(string $libelle): self
     {
         $this->libelle = $libelle;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|GroupeTag[]
+     */
+    public function getGroupeTag(): Collection
+    {
+        return $this->groupeTag;
+    }
+
+    public function addGroupeTag(GroupeTag $groupeTag): self
+    {
+        if (!$this->groupeTag->contains($groupeTag)) {
+            $this->groupeTag[] = $groupeTag;
+        }
+
+        return $this;
+    }
+
+    public function removeGroupeTag(GroupeTag $groupeTag): self
+    {
+        $this->groupeTag->removeElement($groupeTag);
+
+        return $this;
+    }
+
+    public function getArchivage(): ?bool
+    {
+        return $this->archvage;
+    }
+
+    public function setArchivage(bool $archvage): self
+    {
+        $this->archvage = $archvage;
 
         return $this;
     }

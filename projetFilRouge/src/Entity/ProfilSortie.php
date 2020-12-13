@@ -54,7 +54,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * attributes={"security_message"="Acces non autorisé"}
  * )
  * @UniqueEntity("libelle", message="ce libelle existe deja")
- * @ORM\Entity(repositoryClass=ProfilSortieRepository::class)
+ * @ORM\Entity(repositoryClass=ProfilSortieRepository::class) 
  */
 class ProfilSortie
 {

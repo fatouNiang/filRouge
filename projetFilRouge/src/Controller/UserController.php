@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Profil;
 use App\Services\UserService;
 use App\Controller\UserController;
 use Doctrine\ORM\EntityManagerInterface;
@@ -85,33 +86,33 @@ class UserController extends AbstractController
      *     }
      * )
      */
-    public function put(UserRepository $repoUser)
+    public function put(EntityManagerInterface $em, int $id, Request $request)
     {
-        $update = $em->getRepository();
-        
-    //     $user = $request->request->all();
-    //     $photo = $request->files->get("photo");
-    //     $user = $this->serializer->denormalize($user,"App\Entity\User",true);
-    //      if(!$photo)
-    //      {
-    //          return new JsonResponse("veuillez mettre une images",Response::HTTP_BAD_REQUEST,[],true);
-    //      }
-    //         $photoBlob = fopen($photo->getRealPath(),"r+");
-    //          $user->setPhoto($photoBlob);
-    //     $errors = $this->validator->validate($user);
-    //     if (count($errors)){
-    //         $errors = $this->serializer->serialize($errors,"json");
-    //         return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
-    //     }
-    //     $password = $user->getPassword();
-    //    $user->setPassword($this->encoder->encodePassword($user,$password));
-    //    $user->setArchivage(false);
+        $user = $em->getRepository(User::class)->find($id);
+        $requestAll = $request->request->all();
+        foreach ($requestAll as $key=>$value){
+            if($key !="_method" || !$value ){
+                if($key=='profil'){
+                     $profil = $em->getRepository(Profil::class)->find($value);
+                     $user->setProfil($profil);
+                }
+                else{
+                    $method="set".ucfirst($key);
+                    $user->$method($value);
+                }
+            }
+        }
+       $photo= $this->userService->uploadImage($request);
 
-    //     $em = $this->getDoctrine()->getManager();
-    //     $em->persist($user);
-    //     $em->flush();
-        
-    //     return $this->json("success",201);
+            $user->setPhoto($photo);
+        $this->em->persist($user);
+        $this->em->flush();
+        return new JsonResponse('success',Response::HTTP_OK);
+        $errors = $this->validator->validate($user);
+        if (count($errors)){
+            $errors = $this->serializer->serialize($errors,"json");
+            return new JsonResponse($errors,Response::HTTP_BAD_REQUEST,[],true);
+        }
      }
      
     }

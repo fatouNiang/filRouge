@@ -6,8 +6,12 @@ use App\Entity\Tag;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 
-class TagFixtures extends Fixture
+class TagFixtures extends Fixture 
 {
+
+    public static function getReferenceKey($i){
+        return sprintf('Tag_%s',$i);
+    }
     public function load(ObjectManager $manager)
     {
         $tags=["php", "java", "html", "css", "angular"];
@@ -17,8 +21,10 @@ class TagFixtures extends Fixture
            $Tag->setLibelle($tags[$i]);
                 //->setArchivage(false);
           $manager->persist($Tag);
-        }        
+          $this->addReference(self::getReferenceKey($i),$Tag);
 
+        }        
+ 
         $manager->flush();
     }
-}
+} 

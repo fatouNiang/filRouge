@@ -8,11 +8,13 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 
 class ProfilSortieFixtures extends Fixture
 {
+    public static function getReferenceKey($i){
+        return sprintf('profilSortie_user_%s',$i);
+    }
+
     public function load(ObjectManager $manager)
     {
-        // public static function getReferenceKey($i){
-        //     return sprintf('profilSortie_user_%s',$i);
-        // }
+        
         //public const REFERENCE
 
         $TabprofilSorti=["front-end", "back_end", "CMS", "java", "php"];
@@ -22,7 +24,7 @@ class ProfilSortieFixtures extends Fixture
            $pSorti->setLibelle($TabprofilSorti[$i])
                 ->setArchivage(false);
           $manager->persist($pSorti);
-          //$this->addReference(self::getReferenceKey($i),$psorti);
+          $this->addReference(self::getReferenceKey($i),$pSorti);
 
         }
         // $product = new Product();

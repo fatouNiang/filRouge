@@ -9,6 +9,7 @@ use App\Entity\Apprenant;
 use App\Entity\Formateur;
 use App\Entity\CommunityManager;
 use Doctrine\Persistence\ObjectManager;
+use App\DataFixtures\ProfilSortieFixtures;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -32,6 +33,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
 
                 $nbrUser=5;
                 $userProfil=$this->getReference(ProfilFixtures::getReferenceKey($i %4));
+                $profilSortie_user=$this->getReference(ProfilSortieFixtures::getReferenceKey($i %5));
 
 
                 if($userProfil->getLibelle() ==="Apprenant"){
@@ -45,7 +47,8 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
                     if($userProfil->getLibelle()==="Apprenant"){
 
                         $user=new Apprenant();
-                        $user->setGenre($fake->randomElement(['homme','femme']))
+                        $user->setProfilSortie($profilSortie_user)
+                            ->setGenre($fake->randomElement(['homme','femme']))
                             //->setTelephone($fake->phoneNumber())
                             ->setStatut("actif")
                             ->setAdresse($fake->address());
@@ -83,6 +86,7 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
     {
         return array(
             ProfilFixtures::class,
+            ProfilSortieFixtures::class,
         );
     }
 

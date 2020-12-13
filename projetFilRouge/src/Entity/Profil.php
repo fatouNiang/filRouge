@@ -8,6 +8,7 @@ use App\Repository\ProfilRepository;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -47,8 +48,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * },
  * normalizationContext = {"groups" = {"profil: read"}},
  * denormalizationContext = {"groups" = {"profil: write"}},
- * attributes = {"security"="is_granted('ROLE_ADMIN)",
- *              "security_message"="Acces non autorisé"}
+ * 
  * )
  * @ApiFilter(BooleanFilter::class, properties={"archivage"})
  * @UniqueEntity("libelle", message="ce libelle existe deja")
@@ -67,8 +67,7 @@ class Profil
     /**
      * @Assert\NotBlank
      * @ORM\Column(type="string", length=255)
-     * @Groups ({"profil: write", "profil: read"})
-     * 
+     * @Groups ({"profil: write", "profil: read",})
      */
     private $libelle;
 

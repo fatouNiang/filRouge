@@ -49,8 +49,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
  * normalizationContext = {"groups" = {"user: read"}},
  * denormalizationContext = {"groups" = {"user: write"}},
  * )
- * 
- */
+ */ 
 
 class User implements UserInterface
 {

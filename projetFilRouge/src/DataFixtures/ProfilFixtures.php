@@ -11,7 +11,7 @@ class ProfilFixtures extends Fixture
     public static function getReferenceKey($i){
         return sprintf('profil_user_%s',$i);
     }
-
+ 
     public function load(ObjectManager $manager)
     {
         $libelles=['ADMIN',"Formateur","CommunityManager","Apprenant"];

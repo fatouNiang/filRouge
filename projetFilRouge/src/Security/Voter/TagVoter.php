@@ -17,8 +17,8 @@ class TagVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, ['GET', 'POST','DELETE', 'PUT'])
-            && $subject instanceof \App\Entity\Tag;
+        return in_array($attribute, ['GET', 'POST','DELETE', 'PUT']);
+           // && $subject instanceof \App\Entity\Tag;
     }
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
@@ -32,19 +32,22 @@ class TagVoter extends Voter
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'GET':
+                return $user->getRoles()[0]==="ROLE_ADMIN" || $user->getRoles()[0]==="ROLE_Formateur" ;
+
                 ////return $ProfilSortie->getUser()->getId()== $user->getId();
                 //if ( $this->security->isGranted(Role::ROLE_ADMIN) ) { return true; }
                 break;
             case 'POST':
-            return $user->getRoles()[0]==="ROLE_ADMIN";
+            return $user->getRoles()[0]==="ROLE_ADMIN" || $user->getRoles()[0]==="ROLE_Formateur" ;
                 break;
             case 'DELETE':
                return $user->getRoles()[0]==="ROLE_ADMIN";    
                 break;
             case 'PUT':
-            return $user->getRoles()[0]==="ROLE_ADMIN";
+            return $user->getRoles()[0]==="ROLE_ADMIN"|| $user->getRoles()[0]==="ROLE_Formateur";
                 
                 break;
+           default;
         }
 
         return false;

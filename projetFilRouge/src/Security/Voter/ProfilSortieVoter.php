@@ -31,11 +31,6 @@ class ProfilSortieVoter extends Voter
             return false;
         }
 
-        //// if(null== $ProfilSortie->getId()){
-        //     return false;
-        // }
-
-
         switch ($attribute) {
             case 'GET':
                break;
